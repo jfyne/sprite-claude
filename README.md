@@ -53,10 +53,14 @@ This Android app provides a terminal interface to interact with Claude Code runn
 
 ### Prerequisites
 
-- Android Studio (Electric Eel or newer)
-- Android SDK 24+ (Android 7.0 Nougat or higher)
 - A sprites.dev account and API token
 - A configured sprite on sprites.dev
+- Android phone running Android 7.0+ (for installation)
+
+**For building (optional - can use GitHub Actions instead):**
+- Java JDK 17
+- Android SDK command-line tools (no Android Studio needed!)
+- Or just use Docker
 
 ### Getting Your Sprites Token
 
@@ -67,20 +71,39 @@ This Android app provides a terminal interface to interact with Claude Code runn
 
 ### Building the App
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/yourusername/sprite-claude.git
-   cd sprite-claude
-   ```
+**📱 Don't want to install Android Studio?** No problem!
 
-2. Open the project in Android Studio
+**Option 1: GitHub Actions (Zero Setup Required)**
+- Push code to GitHub
+- Go to Actions tab → "Build APK" → "Run workflow"
+- Download the built APK from artifacts
+- See [BUILD_WITHOUT_STUDIO.md](BUILD_WITHOUT_STUDIO.md)
 
-3. Sync Gradle dependencies
+**Option 2: Command Line Build**
+```bash
+# Clone repository
+git clone https://github.com/yourusername/sprite-claude.git
+cd sprite-claude
 
-4. Build and run on your device or emulator:
-   ```bash
-   ./gradlew assembleDebug
-   ```
+# Build APK (requires Java 17 and Android SDK)
+./gradlew assembleDebug
+
+# APK location: app/build/outputs/apk/debug/app-debug.apk
+```
+
+**Option 3: Docker Build (No local SDK needed)**
+```bash
+docker run --rm -v "$(pwd)":/project -w /project \
+  mingc/android-build-box:latest \
+  bash -c "./gradlew assembleDebug"
+```
+
+**Option 4: Android Studio** (traditional method)
+1. Open project in Android Studio
+2. Sync Gradle dependencies
+3. Build and run
+
+For detailed instructions, see [BUILD_WITHOUT_STUDIO.md](BUILD_WITHOUT_STUDIO.md)
 
 ## Usage
 
