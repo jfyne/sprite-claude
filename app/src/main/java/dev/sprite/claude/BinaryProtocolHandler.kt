@@ -33,7 +33,7 @@ class BinaryProtocolHandler {
         }
 
         // Non-PTY mode: use stream ID prefixes
-        val streamId = bytes.getByte(0)
+        val streamId = bytes[0]
         val payload = bytes.substring(1)
 
         when (streamId) {
@@ -47,7 +47,7 @@ class BinaryProtocolHandler {
             }
             StreamId.EXIT -> {
                 if (payload.size >= 1) {
-                    val exitCode = payload.getByte(0).toInt()
+                    val exitCode = payload[0].toInt()
                     outputListener?.onExit(exitCode)
                 }
             }
