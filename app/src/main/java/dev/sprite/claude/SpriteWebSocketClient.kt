@@ -41,13 +41,20 @@ class SpriteWebSocketClient(
         protocolHandler.setOutputListener(listener)
     }
 
-    fun connect(command: String = "claude") {
+    fun setPtyMode(enabled: Boolean) {
+        protocolHandler.setPtyMode(enabled)
+    }
+
+    fun connect(command: String = "claude", useTty: Boolean = true) {
         val url = "wss://api.sprites.dev/v1/sprites/$spriteName/exec"
 
         val request = Request.Builder()
             .url(url)
             .addHeader("Authorization", "Bearer $token")
             .build()
+
+        // Set PTY mode in protocol handler
+        protocolHandler.setPtyMode(useTty)
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -56,7 +63,7 @@ class SpriteWebSocketClient(
                 // Send the command to execute
                 val commandMessage = mapOf(
                     "command" to command,
-                    "tty" to false
+                    "tty" to useTty
                 )
                 val json = gson.toJson(commandMessage)
                 webSocket.send(json)
@@ -91,6 +98,8 @@ class SpriteWebSocketClient(
 
             override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
                 Log.d(TAG, "Received binary message: ${bytes.size} bytes")
+                // In PTY mode, all data is stdout (no stream ID prefixes)
+                // In non-PTY mode, use stream ID prefixes
                 protocolHandler.handleBinaryData(bytes)
             }
 

@@ -64,29 +64,38 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 1. Return to the main screen
 2. Tap **Connect**
 3. Wait for "Connected" status (green)
-4. Start typing commands!
+4. Claude Code is now running in a tmux session!
 
-### Example Commands
+### Using Claude Code
+
+Since the app automatically starts Claude in a tmux session, you can directly interact with Claude:
 
 ```bash
-# Check Claude version
-claude --version
+# Just ask Claude directly - no need to type "claude" first!
+What files are in this directory?
 
-# Ask Claude a question
-claude "What is the capital of France?"
+Help me write a Python script
 
-# List files in the sprite
-ls -la
+Show me how to use git
 
-# Check current directory
-pwd
-
-# Run Python
-python3 -c "print('Hello from sprite!')"
-
-# Use Claude Code interactively
-claude
+# Use the terminal keyboard for special keys:
+# - Arrow Up/Down for command history
+# - Tab for autocomplete
+# - Ctrl+C to interrupt
+# - ESC for vim/emacs keybindings
 ```
+
+### Terminal Keyboard Features
+
+The custom keyboard bar includes:
+- **ESC, TAB** - Essential terminal keys
+- **^C, ^D, ^Z** - Control characters
+- **Arrow keys** - Navigation and history
+- **Special chars** - |, /, ~, -
+
+### Session Persistence
+
+Your tmux session persists! If you disconnect and reconnect, you'll return to your previous Claude conversation.
 
 ## Troubleshooting
 

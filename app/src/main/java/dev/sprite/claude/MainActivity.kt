@@ -29,6 +29,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusText: TextView
     private lateinit var terminalScrollView: ScrollView
 
+    // Terminal keyboard buttons
+    private lateinit var keyEsc: Button
+    private lateinit var keyTab: Button
+    private lateinit var keyCtrlC: Button
+    private lateinit var keyCtrlD: Button
+    private lateinit var keyCtrlZ: Button
+    private lateinit var keyArrowUp: Button
+    private lateinit var keyArrowDown: Button
+    private lateinit var keyArrowLeft: Button
+    private lateinit var keyArrowRight: Button
+    private lateinit var keyPipe: Button
+    private lateinit var keySlash: Button
+    private lateinit var keyTilde: Button
+    private lateinit var keyMinus: Button
+    private lateinit var keyClear: Button
+
     private lateinit var preferencesManager: PreferencesManager
     private var webSocketClient: SpriteWebSocketClient? = null
     private var isConnected = false
@@ -52,6 +68,22 @@ class MainActivity : AppCompatActivity() {
         settingsButton = findViewById(R.id.settingsButton)
         statusText = findViewById(R.id.statusText)
         terminalScrollView = findViewById(R.id.terminalScrollView)
+
+        // Terminal keyboard buttons
+        keyEsc = findViewById(R.id.keyEsc)
+        keyTab = findViewById(R.id.keyTab)
+        keyCtrlC = findViewById(R.id.keyCtrlC)
+        keyCtrlD = findViewById(R.id.keyCtrlD)
+        keyCtrlZ = findViewById(R.id.keyCtrlZ)
+        keyArrowUp = findViewById(R.id.keyArrowUp)
+        keyArrowDown = findViewById(R.id.keyArrowDown)
+        keyArrowLeft = findViewById(R.id.keyArrowLeft)
+        keyArrowRight = findViewById(R.id.keyArrowRight)
+        keyPipe = findViewById(R.id.keyPipe)
+        keySlash = findViewById(R.id.keySlash)
+        keyTilde = findViewById(R.id.keyTilde)
+        keyMinus = findViewById(R.id.keyMinus)
+        keyClear = findViewById(R.id.keyClear)
 
         updateConnectionState(false)
     }
@@ -85,6 +117,40 @@ class MainActivity : AppCompatActivity() {
                 false
             }
         }
+
+        setupTerminalKeyboard()
+    }
+
+    private fun setupTerminalKeyboard() {
+        keyEsc.setOnClickListener { sendSpecialKey("\u001B") } // ESC
+        keyTab.setOnClickListener { sendSpecialKey("\t") } // Tab
+        keyCtrlC.setOnClickListener { sendSpecialKey("\u0003") } // Ctrl+C
+        keyCtrlD.setOnClickListener { sendSpecialKey("\u0004") } // Ctrl+D
+        keyCtrlZ.setOnClickListener { sendSpecialKey("\u001A") } // Ctrl+Z
+        keyArrowUp.setOnClickListener { sendSpecialKey("\u001B[A") } // Arrow Up
+        keyArrowDown.setOnClickListener { sendSpecialKey("\u001B[B") } // Arrow Down
+        keyArrowRight.setOnClickListener { sendSpecialKey("\u001B[C") } // Arrow Right
+        keyArrowLeft.setOnClickListener { sendSpecialKey("\u001B[D") } // Arrow Left
+        keyPipe.setOnClickListener { insertText("|") }
+        keySlash.setOnClickListener { insertText("/") }
+        keyTilde.setOnClickListener { insertText("~") }
+        keyMinus.setOnClickListener { insertText("-") }
+        keyClear.setOnClickListener { inputField.text.clear() }
+    }
+
+    private fun sendSpecialKey(key: String) {
+        if (isConnected) {
+            webSocketClient?.sendInput(key)
+        }
+    }
+
+    private fun insertText(text: String) {
+        val currentPosition = inputField.selectionStart
+        val currentText = inputField.text.toString()
+        val newText = currentText.substring(0, currentPosition) + text +
+                      currentText.substring(currentPosition)
+        inputField.setText(newText)
+        inputField.setSelection(currentPosition + text.length)
     }
 
     private fun connect() {
@@ -110,6 +176,7 @@ class MainActivity : AppCompatActivity() {
                         runOnUiThread {
                             updateConnectionState(true)
                             appendToTerminal("Connected to sprite: $spriteName\n", false)
+                            appendToTerminal("Starting tmux session with Claude Code...\n", false)
                             sessionId?.let {
                                 appendToTerminal("Session ID: $it\n\n", false)
                             }
@@ -157,7 +224,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 })
 
-                connect("bash")
+                // Connect to tmux session with Claude running
+                // -A: attach to session if exists, create if doesn't
+                // -s claude: name the session "claude"
+                connect("tmux new-session -A -s claude claude", useTty = true)
             }
         }
     }
@@ -172,7 +242,7 @@ class MainActivity : AppCompatActivity() {
         val command = inputField.text.toString()
         if (command.isNotBlank() && isConnected) {
             webSocketClient?.sendCommand(command)
-            appendToTerminal("$ $command\n", false)
+            // Don't echo the command here - the terminal will echo it in PTY mode
             inputField.text.clear()
         }
     }

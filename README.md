@@ -9,9 +9,12 @@ This Android app provides a terminal interface to interact with Claude Code runn
 ## Features
 
 - **Real-time WebSocket streaming** to sprites.dev sandbox environments
+- **Tmux integration** - automatically connects to persistent tmux session with Claude Code
 - **Terminal-like interface** for Claude Code interactions
+- **Custom terminal keyboard** with special keys (ESC, Tab, Ctrl+C, arrows, etc.)
+- **PTY mode support** for proper terminal emulation
 - **Binary protocol support** for stdin/stdout/stderr multiplexing
-- **Session management** with automatic connection handling
+- **Session persistence** - reconnect to existing tmux sessions
 - **Configurable settings** for sprite name and authentication token
 - **Error highlighting** in terminal output
 - **Auto-scrolling terminal** for continuous output
@@ -94,8 +97,24 @@ This Android app provides a terminal interface to interact with Claude Code runn
 
 1. From the main screen, tap **Connect**
 2. The app will establish a WebSocket connection to your sprite
-3. Once connected, you'll see the status change to "Connected" (green)
-4. A bash shell will be started in the sprite environment
+3. A tmux session named "claude" is automatically created/attached with Claude Code running
+4. Once connected, you'll see the status change to "Connected" (green)
+5. You can now interact directly with Claude Code in the tmux session
+
+**Session Persistence**: If you disconnect and reconnect, you'll automatically reattach to the existing tmux session, preserving your conversation history with Claude.
+
+### Using the Terminal Keyboard
+
+The app includes a custom keyboard bar above the standard keyboard with terminal-specific keys:
+
+- **ESC** - Escape key
+- **TAB** - Tab key for autocomplete
+- **^C** - Ctrl+C (interrupt/cancel)
+- **^D** - Ctrl+D (EOF/logout)
+- **^Z** - Ctrl+Z (suspend)
+- **↑ ↓ ← →** - Arrow keys for navigation and history
+- **| / ~ -** - Common terminal characters
+- **CLR** - Clear input field
 
 ### Running Commands
 
@@ -104,13 +123,17 @@ This Android app provides a terminal interface to interact with Claude Code runn
 3. Output appears in the terminal display above
 4. Errors are highlighted in red
 
-Example commands:
+Since Claude Code is already running in the tmux session, you can directly ask questions:
 ```bash
-claude --help
-claude "What is the capital of France?"
-ls -la
-pwd
+What files are in the current directory?
+Help me write a Python script to parse JSON
+Show me how to use git
 ```
+
+You can also use tmux commands:
+- `Ctrl+B D` - Detach from tmux (stay connected)
+- Type `tmux ls` - List tmux sessions
+- Type `exit` - Exit Claude and the tmux session
 
 ### Disconnecting
 
